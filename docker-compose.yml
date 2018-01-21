@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+    db:
+        image: postgres:10.1
+        ports:
+        - "54332:5432"
+        environment:
+        - "POSTGRES_USER=root"
+        - "POSTGRES_PASSWORD=secret"
+        - "POSTGRES_DB=sanic-test"
+    python:
+        build:
+            context: .
+            dockerfile: ./docker/python/Dockerfile
+        command: /bin/bash -c "gunicorn --worker-class sanic.worker.GunicornWorker --workers=3 serve:app  -b 0.0.0.0:80 --reload --error-logfile /codes/logs/error.log --capture-output"
+        volumes:
+            - .:/codes
+        ports:
+            - 8001:80
+        links:
+            - db
+        environment:
+            - POSTGRES_HOST=db
+            - POSTGRES_DB=sanic-test
