@@ -4,14 +4,13 @@ services:
     postgres:
         image: postgres:10.1
         ports:
-            - "54323:5432"
+            - "5432:5432"
         environment:
-            - "POSTGRES_USER=root"
-            - "POSTGRES_PASSWORD=secret"
-            - "POSTGRES_DB=sanic-test"
-        volumes:
-            - ~/.backup/postgres/sanic/sanic-test:/var/lib/postgresql/data
-
+	        - "POSTGRES_USER="
+	        - "POSTGRES_PASSWORD="
+	        - "POSTGRES_DB="
+	    volumes:
+            - ~/.backup/path/here:/var/lib/postgresql/data
     python:
         build:
             context: .
@@ -19,9 +18,11 @@ services:
         volumes:
             - .:/codes
         ports:
-            - 8001:80
+            - 80:80
         links:
             - postgres
+        environment:
+            - POSTGRES_HOST=postgres
         command: /bin/bash -c "gunicorn --worker-class sanic.worker.GunicornWorker --workers=3 serve:app  -b 0.0.0.0:80 --reload --access-logfile /codes/storage/logs/access.log --error-logfile /codes/storage/logs/error.log --capture-output"
 
     adminer:
